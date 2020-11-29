@@ -1,0 +1,42 @@
+name: Build and Release
+
+on: push
+
+jobs:
+  build-and-release:
+    name: Build Tesseract.app
+    runs-on: macos-10.15
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Build App
+        run: ./mkapp.sh
+
+      - name: Get App Version
+        run: echo "APP_VERSION=$(cat tesseract_version)" >> $GITHUB_ENV
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.APP_VERSION }}
+          release_name: ${{ env.APP_VERSION }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: Tesseract.app.zip
+          asset_name: Tesseract.app.zip
+          asset_content_type: application/zip

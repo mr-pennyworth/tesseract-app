@@ -1,0 +1,3 @@
+[submodule "macdylibbundler"]
+	path = macdylibbundler
+	url = https://github.com/auriamg/macdylibbundler/
